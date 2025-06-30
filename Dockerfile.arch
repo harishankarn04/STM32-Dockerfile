@@ -1,0 +1,28 @@
+FROM archlinux:base-devel
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TOOLS_PATH=/opt/gcc-arm-none-eabi
+ARG ARM_VERSION=14.2.rel1
+
+# Prep basic packages
+RUN pacman -Syyu --noconfirm && \
+    pacman -S --noconfirm \
+    base-devel \
+    make cmake ninja \
+    git gnupg \
+    stlink
+
+# Get ARM Toolchain
+RUN mkdir ${TOOLS_PATH} \
+	&& curl -Lo gcc-arm-none-eabi.tar.xz "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_VERSION}/binrel/arm-gnu-toolchain-${ARM_VERSION}-x86_64-arm-none-eabi.tar.xz" \
+	&& tar xf gcc-arm-none-eabi.tar.xz --strip-components=1 -C ${TOOLS_PATH} \
+	&& rm gcc-arm-none-eabi.tar.xz \
+	&& rm ${TOOLS_PATH}/*.txt \
+	&& rm -rf ${TOOLS_PATH}/share/doc
+
+# Add Toolchain to PATH
+ENV PATH="$PATH:${TOOLS_PATH}/bin"
+
+ADD build.sh /usr/local/bin/build.sh
+ENTRYPOINT ["/usr/local/bin/build.sh"]
