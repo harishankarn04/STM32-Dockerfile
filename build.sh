@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Default values
+# Default values Release , Debug
 TYPE=Release
 VOLUME=/app
 
@@ -26,7 +26,7 @@ while [[ $# -gt 0 ]]; do
 	-r | --repo)
 		# Check if has argument value
 		if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
-			echo "stm32-builder: '$1' missing repository url argument" >&2
+			echo "stm32-compiler: '$1' missing repository url argument" >&2
 			echo "See '--help' for more information"
 			exit 1
 		else
@@ -36,7 +36,7 @@ while [[ $# -gt 0 ]]; do
 		fi
 		;;
 	-* | --*=) # unsupported argument
-		echo "stm32-builder: Unsupported argument '$1'" >&2
+		echo "stm32-complier: Unsupported argument '$1'" >&2
 		echo "See '--help' for more information"
 		exit 1
 		;;
@@ -52,8 +52,13 @@ if [[ $HELP == true ]]; then
 	echo "  -r, --repo <repository url>           Clone repository from url and build [Optional]"
 	echo ""
 	echo "Example:"
+	echo "here  HostProjectPath if project is already there in your localmachine path ex: $(pwd)/project "
 	echo "  docker run {IMAGE:VERSION} -v /HostProjectPath:/app"
-	echo "  docker run {IMAGE:VERSION} -v /HostEmptyPath:/app -r https://github.com/jasonyang-ee/STM32-CMAKE-TEMPLATE.git -t Debug"
+	echo "here  HostEmptyPath if project is available in your github ex: $(pwd)/project . here project is a empty folder automatically created in localmachine as part of clone"
+	echo "  docker run {IMAGE:VERSION} -v /HostEmptyPath:/app -r https://github.com/harishankarn/STM32-CMAKE-TEMPLATE.git -t Debug"
+	echo " EXAMPLES BELOW while using  public repo hosting the code base "
+	echo "docker run -v  "$(pwd)/test":/app    stm32-compiler:latest  -r https://github.com/jasonyang-ee/STM32-CMAKE-TEMPLATE.git -t Release"
+        echo "docker run -v  "$(pwd)/test2":/app    stm32-compiler:latest  -r https://github.com/Teivaz/cmake-stm32.git  -t Release "
 	echo ""
 	echo "Github Action Example:"
 	echo "  - uses: actions/checkout@v4"
@@ -79,7 +84,14 @@ fi
 
 # Check for repo
 if [[ ! -z $REPO ]]; then
-	git clone $REPO $VOLUME
+  SSH_PRIVATE_KEY=”$(cat ~/.ssh/id_dsa)”
+  #chmod 600 ~/.ssh/id_dsa
+  #ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+  #git clone $REPO $VOLUME  –build-arg SSH_PRIVATE_KEY=”$(cat ~/.ssh/id_dsa)”  
+echo "ssh-agent"
+ssh-agent $(ssh-add  ~/.ssh/id_dsa; git clone $REPO $VOLUME)
+
+  
 fi
 
 # Check if project exists in volume

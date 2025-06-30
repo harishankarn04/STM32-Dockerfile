@@ -6,6 +6,7 @@ ARG TOOLS_PATH=/opt/gcc-arm-none-eabi
 ARG ARM_VERSION=14.2.rel1
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Kolkata
+ARG SSH_PRIVATE_KEY
 
 RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM" > /log
 
@@ -29,6 +30,11 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     udev
 
+#ARG SSH_PRIVATE_KEY
+#  RUN mkdir ~/.ssh/ \
+#  && echo “${SSH_PRIVATE_KEY}” > ~/.ssh/id_dsa \
+#  && chmod 600 ~/.ssh/id_dsa \
+#  && ssh-keyscan github.com >> ~/.ssh/known_hosts 
 
 # Get ARM Toolchain
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then export ARM_ARCH=x86_64; \
@@ -42,6 +48,10 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then export ARM_ARCH=x86_64; \
 	&& rm ${TOOLS_PATH}/*.txt \
 	&& rm -rf ${TOOLS_PATH}/share/doc \
 	&& echo "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_VERSION}/binrel/arm-gnu-toolchain-${ARM_VERSION}-${ARM_ARCH}-arm-none-eabi.tar.xz"
+
+
+
+
 #RUN LOCAL_USER_NAME=$(whoami)
 #RUN useradd -ms /bin/bash $LOCAL_USER_NAME \
 #    && echo "$LOCAL_USER_NAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
