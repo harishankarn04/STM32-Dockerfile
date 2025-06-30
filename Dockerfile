@@ -4,6 +4,8 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 ARG TOOLS_PATH=/opt/gcc-arm-none-eabi
 ARG ARM_VERSION=14.2.rel1
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Kolkata
 
 RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM" > /log
 
@@ -13,7 +15,20 @@ RUN apt-get update && apt-get install -y \
 	cmake ninja-build \
 	git gnupg2 \
 	stlink-tools \
-	xz-utils curl
+	xz-utils curl \
+        sudo \
+        usbutils \
+        pkg-config \
+        libusb-* \
+        make \
+        automake \
+        autoconf \
+        texinfo \
+  tzdata \
+    ninja-build \
+    ca-certificates \
+    udev
+
 
 # Get ARM Toolchain
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then export ARM_ARCH=x86_64; \
@@ -27,6 +42,10 @@ RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then export ARM_ARCH=x86_64; \
 	&& rm ${TOOLS_PATH}/*.txt \
 	&& rm -rf ${TOOLS_PATH}/share/doc \
 	&& echo "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_VERSION}/binrel/arm-gnu-toolchain-${ARM_VERSION}-${ARM_ARCH}-arm-none-eabi.tar.xz"
+#RUN LOCAL_USER_NAME=$(whoami)
+#RUN useradd -ms /bin/bash $LOCAL_USER_NAME \
+#    && echo "$LOCAL_USER_NAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+#    && usermod -aG pkgdev $LOCAL_USER_NAME
 
 # Add Toolchain to PATH
 ENV PATH="$PATH:${TOOLS_PATH}/bin"
