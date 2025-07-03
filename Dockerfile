@@ -30,11 +30,25 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     udev
 
+#add lines of code check and  doxygen documentaion check 
+RUN  apt-get install -y \
+     g++ \
+     doxygen \
+     lcov \
+     graphviz 
+
 #ARG SSH_PRIVATE_KEY
 #  RUN mkdir ~/.ssh/ \
 #  && echo “${SSH_PRIVATE_KEY}” > ~/.ssh/id_dsa \
 #  && chmod 600 ~/.ssh/id_dsa \
 #  && ssh-keyscan github.com >> ~/.ssh/known_hosts 
+
+#install google gtest library for unit test and mock testing
+#RUN apt-get install -y libgtest-dev \
+#    && cd /usr/src/gtest \
+#    && cmake . \
+#    && make \
+#    && cp ./lib/libgtest*.a  /usr/lib 
 
 # Get ARM Toolchain
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then export ARM_ARCH=x86_64; \
